@@ -11,57 +11,52 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Start Docker Desktop
+
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Export all secrets as environment variables
+    - name: Export All Secrets as Environment Variables
+      shell: powershell
+      env:
+        SECRETS_CONTEXT: ${{ toJson(secrets) }}
+      run: ./.github/workflows/export-github-secrets.ps1
+
+    # Run fine-tuning locally
+    - name: Run Fine-Tuning
+      run: |
+        uv run src/fine-tuning/psy_model_fine_tuning.py
+
+    # Log in to Azure CLI
+    - name: Log in to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    # Build and push Docker image to ACR
+    - name: Start Docker, Build and Push Docker Image
       shell: powershell
       run: |
         Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe" -WindowStyle Hidden
-        Start-Sleep -Seconds 10
-        docker ps
+        Start-Sleep -Seconds 3
 
-    # # Checkout the code
-    # - name: Checkout code
-    #   uses: actions/checkout@v3
+        az acr login --name ${{ secrets.PSY_ACR_NAME }}
+        docker build -t ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest .
+        docker push ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest
 
-    # # Export all secrets as environment variables
-    # - name: Export All Secrets as Environment Variables
-    #   shell: powershell
-    #   env:
-    #     SECRETS_CONTEXT: ${{ toJson(secrets) }}
-    #   run: ./.github/workflows/export-github-secrets.ps1
+    # Get AKS credentials
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group ${{ secrets.PSY_RESOURCE_GROUP }} --name ${{ secrets.PSY_CLUSTER_NAME }}
 
-    # # Run fine-tuning locally
-    # - name: Run Fine-Tuning
-    #   run: |
-    #     uv run src/fine-tuning/psy_model_fine_tuning.py
+    # Deploy the model to AKS
+    - name: Deploy Psy Model to AKS
+      run: |
+        envsubst < k8s/psy-model.yml > k8s/psy-model-processed.yml
+        kubectl apply -f k8s/psy-model-processed.yml
 
-    # # Log in to Azure CLI
-    # - name: Log in to Azure
-    #   uses: azure/login@v1
-    #   with:
-    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    # # Build and push Docker image to ACR
-    # - name: Start Docker, Build and Push Docker Image
-    #   run: |
-    #     Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe" -WindowStyle Hidden
-    #     timeout 10
-
-    #     az acr login --name ${{ secrets.PSY_ACR_NAME }}
-    #     docker build -t ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest .
-    #     docker push ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest
-
-    # # Get AKS credentials
-    # - name: Get AKS credentials
-    #   run: |
-    #     az aks get-credentials --resource-group ${{ secrets.PSY_RESOURCE_GROUP }} --name ${{ secrets.PSY_CLUSTER_NAME }}
-
-    # # Deploy the model to AKS
-    # - name: Deploy Psy Model to AKS
-    #   run: |
-    #     envsubst < k8s/psy-model.yml > k8s/psy-model-processed.yml
-    #     kubectl apply -f k8s/psy-model-processed.yml
-
-    # # Restart deployment to ensure updates
-    # - name: Restart Deployment
-    #   run: |
-    #     kubectl rollout restart deployment psy-model
+    # Restart deployment to ensure updates
+    - name: Restart Deployment
+      run: |
+        kubectl rollout restart deployment psy-model

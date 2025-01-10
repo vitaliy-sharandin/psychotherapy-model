@@ -26,12 +26,6 @@ jobs:
     - name: Run Fine-Tuning
       run: |
         uv run src/fine-tuning/psy_model_fine_tuning.py
-    
-    # Build and push Docker image to ACR
-    - name: Build and Push Docker Image
-      run: |
-        docker build -t ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest .
-        docker push ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest
 
     # Log in to Azure CLI
     - name: Log in to Azure
@@ -43,6 +37,12 @@ jobs:
     - name: Log in to ACR
       run: |
         az acr login --name ${{ secrets.PSY_ACR_NAME }}
+    
+    # Build and push Docker image to ACR
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest .
+        docker push ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest
 
     # Get AKS credentials
     - name: Get AKS credentials

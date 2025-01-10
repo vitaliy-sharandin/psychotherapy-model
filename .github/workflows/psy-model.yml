@@ -34,8 +34,11 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     
     # Build and push Docker image to ACR
-    - name: Build and Push Docker Image
+    - name: Start Docker, Build and Push Docker Image
       run: |
+        Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe" -WindowStyle Hidden
+        
+        az acr login --name ${{ secrets.PSY_ACR_NAME }}
         docker build -t ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest .
         docker push ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest
 

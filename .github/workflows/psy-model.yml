@@ -1,0 +1,63 @@
+name: Deploy Psy Model to AKS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  fine-tune-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+    # Export all secrets as environment variables
+    - name: Export All Secrets as Environment Variables
+      shell: pwsh
+      env:
+        SECRETS_CONTEXT: ${{ toJson(secrets) }}
+      run: ./.github/workflows/export-github-secrets.ps1
+
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Run fine-tuning locally
+    - name: Run Fine-Tuning
+      run: |
+        uv run src/fine-tuning/psy_model_fine_tuning.py
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+
+    # Log in to Azure Container Registry
+    - name: Log in to ACR
+      run: |
+        az acr login --name ${{ secrets.PSY_ACR_NAME }}
+
+    # Build and push Docker image to ACR
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest .
+        docker push ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest
+
+    # Get AKS credentials
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group ${{ secrets.PSY_RESOURCE_GROUP }} --name ${{ secrets.PSY_CLUSTER_NAME }}
+
+    # Create Kubernetes Secret
+    - name: Create Kubernetes Secret
+      run: |
+        envsubst < k8s/secrets.yml > k8s/secrets-processed.yml
+        kubectl apply -f k8s/secrets-processed.yml
+
+    # Deploy the model to AKS
+    - name: Deploy Psy Model to AKS
+      run: |
+        envsubst < k8s/psy-model.yml > k8s/psy-model-processed.yml
+        kubectl apply -f k8s/psy-model-processed.yml
+
+    # Restart deployment to ensure updates
+    - name: Restart Deployment
+      run: |
+        kubectl rollout restart deployment psy-model

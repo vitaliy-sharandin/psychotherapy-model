@@ -37,6 +37,7 @@ jobs:
     - name: Start Docker, Build and Push Docker Image
       run: |
         Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe" -WindowStyle Hidden
+        timeout 10
         
         az acr login --name ${{ secrets.PSY_ACR_NAME }}
         docker build -t ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest .

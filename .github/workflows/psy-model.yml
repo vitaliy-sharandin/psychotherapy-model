@@ -11,11 +11,12 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Test
-      run: |
-        Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe" -WindowStyle Hidden
-        timeout 30
-        docker ps
+    - name: Start Docker Desktop
+        shell: powershell
+        run: |
+          Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe" -WindowStyle Hidden
+          Start-Sleep -Seconds 10
+          docker ps
 
     # # Checkout the code
     # - name: Checkout code

@@ -49,12 +49,6 @@ jobs:
       run: |
         az aks get-credentials --resource-group ${{ secrets.PSY_RESOURCE_GROUP }} --name ${{ secrets.PSY_CLUSTER_NAME }}
 
-    # Create Kubernetes Secret
-    - name: Create Kubernetes Secret
-      run: |
-        envsubst < k8s/secrets.yml > k8s/secrets-processed.yml
-        kubectl apply -f k8s/secrets-processed.yml
-
     # Deploy the model to AKS
     - name: Deploy Psy Model to AKS
       run: |

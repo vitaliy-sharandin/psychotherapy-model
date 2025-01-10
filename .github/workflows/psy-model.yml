@@ -32,11 +32,6 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    # Log in to Azure Container Registry
-    - name: Log in to ACR
-      run: |
-        az acr login --name ${{ secrets.PSY_ACR_NAME }}
     
     # Build and push Docker image to ACR
     - name: Build and Push Docker Image

@@ -13,7 +13,7 @@ jobs:
     steps:
     # Export all secrets as environment variables
     - name: Export All Secrets as Environment Variables
-      shell: pwsh
+      shell: powershell
       env:
         SECRETS_CONTEXT: ${{ toJson(secrets) }}
       run: ./.github/workflows/export-github-secrets.ps1

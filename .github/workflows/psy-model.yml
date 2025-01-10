@@ -11,16 +11,16 @@ jobs:
     runs-on: self-hosted
 
     steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
     # Export all secrets as environment variables
     - name: Export All Secrets as Environment Variables
       shell: powershell
       env:
         SECRETS_CONTEXT: ${{ toJson(secrets) }}
       run: ./.github/workflows/export-github-secrets.ps1
-
-    # Checkout the code
-    - name: Checkout code
-      uses: actions/checkout@v3
 
     # Run fine-tuning locally
     - name: Run Fine-Tuning

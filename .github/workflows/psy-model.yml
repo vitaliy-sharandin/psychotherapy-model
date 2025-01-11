@@ -11,7 +11,6 @@ jobs:
     runs-on: self-hosted
 
     steps:
-
     # Checkout the code
     - name: Checkout code
       uses: actions/checkout@v3
@@ -39,7 +38,7 @@ jobs:
       shell: powershell
       run: |
         Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe" -WindowStyle Hidden
-        Start-Sleep -Seconds 3
+        Start-Sleep -Seconds 5
 
         az acr login --name ${{ secrets.PSY_ACR_NAME }}
         docker build -t ${{ secrets.PSY_ACR_NAME }}.azurecr.io/psy-model:latest .
@@ -53,8 +52,7 @@ jobs:
     # Deploy the model to AKS
     - name: Deploy Psy Model to AKS
       run: |
-        envsubst < k8s/psy-model.yml > k8s/psy-model-processed.yml
-        kubectl apply -f k8s/psy-model-processed.yml
+        kubectl apply -f k8s/deploy.yml
 
     # Restart deployment to ensure updates
     - name: Restart Deployment

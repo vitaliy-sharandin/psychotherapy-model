@@ -1,0 +1,13 @@
+md5: 2f9598054f2e8808e4d9f69a57037eb0
+frozen: true
+deps:
+- path: data
+  repo:
+    url: https://huggingface.co/datasets/vitaliy-sharandin/depression-instruct
+    rev_lock: 75d78d9038ecf55d541a84a49205d232c8d461f1
+outs:
+- md5: 8c8aa8a4c8e97b28bcae30eced685267.dir
+  size: 21000
+  nfiles: 2
+  hash: md5
+  path: data

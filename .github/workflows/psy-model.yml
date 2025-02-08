@@ -22,10 +22,18 @@ jobs:
         SECRETS_CONTEXT: ${{ toJson(secrets) }}
       run: ./.github/workflows/export-github-secrets.ps1
 
+    # Start MLflow server
+    - name: Start MLflow Server
+      shell: powershell
+      run: |
+        Start-Process uv -ArgumentList "run", "mlflow", "server", "--host", "127.0.0.1", "--port", "8080" -WindowStyle Hidden
+        Start-Sleep -Seconds 3
+
     # Run fine-tuning locally
     - name: Run Fine-Tuning
+      shell: powershell
       run: |
-        uv run src/fine-tuning/psy_model_fine_tuning.py
+        uv run jupyter nbconvert --to script --stdout --execute .\src\fine-tuning\psy_ai_huggingface_model_registry_demo.ipynb
 
     # Log in to Azure CLI
     - name: Log in to Azure

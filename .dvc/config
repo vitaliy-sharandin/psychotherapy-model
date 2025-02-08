@@ -1,0 +1,6 @@
+[core]
+    remote = hf_remote
+['remote "hugging face"']
+    url = https://huggingface.co/datasets/vitaliy-sharandin
+['remote "hf_remote"']
+    url = https://huggingface.co/datasets/vitaliy-sharandin/depression-instruct

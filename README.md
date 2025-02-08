@@ -1,11 +1,17 @@
 # Psychotherapy Llama model 
 ## Prerequisites
 - Python 3.12 or higher
-- UV installed
+- UV package manager
 - Docker
+- Azure CLI
+
+## Data version management
+DVC data maangement is automatically installed, so you can version control your data.
+- There is an option for data version management through DVC
+- Once data is checked out, then in `.\src\fine-tuning\psy_ai_huggingface_model_registry_demo.ipynb` change the typical huggingface data loading to local one.
 
 ## Fine-tune
-1. Run the command `uv run src/fine-tuning/psy_model_fine_tuning.py`.
+1. Run the command `uv run jupyter nbconvert --to notebook --execute .\src\fine-tuning\psy_ai_huggingface_model_registry_demo.ipynb`
 1. Built model will appear in `src/fine-tuning/target` folder.
 
 ### (Optional) Prepare GGUF distribution files
@@ -13,6 +19,10 @@
 * Install llama.cpp
 * Install `requirements.txt`
 * Convert you HF tensors to GGUF <br> `python convert_hf_to_gguf.py --outtype q4_0 --outfile <gguf_output_location>\<file_name>.gguf <model_folder_location>`
+
+### MLFlow experiment tracking
+MLFlow experiment tracking is integrated into the repo.
+- Run server using `uv run mlflow server --host 127.0.0.1 --port 8080`
 
 ## Local model serving
 
@@ -40,4 +50,11 @@
 1. Deploy the pod using yml from `k8s`
 
 ## Automatic deployment
-The repository is configured with github actions, all above actions will be one automatically by GitHub Actions deployment.
+The repository is configured with **GitHub Actions** for automated deployment. All steps, including Docker build, push, and AKS deployment, are performed automatically upon code changes.
+
+### Requirements
+This repo uses local Github Actions Runner, as you need a GPU to run model fine-tuning.
+- Local system with GPU
+- Install [Github Actions Runner for local launch](https://github.com/actions/runner/releases)
+- Run `.github/workflows/start-runner.ps1` to start the local runner 
+- Push changes and your runner will perform work

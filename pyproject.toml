@@ -46,7 +46,7 @@ build-backend = "hatchling.build"
 select = ["ALL"]
 
 [tool.ruff.format]
-indent-style = "tab"
+indent-style = "space"
 
 [tool.ruff]
 line-length = 120

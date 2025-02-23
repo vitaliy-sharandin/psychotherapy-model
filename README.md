@@ -20,9 +20,8 @@ DVC data maangement is automatically installed, so you can version control your 
 * Install `requirements.txt`
 * Convert you HF tensors to GGUF <br> `python convert_hf_to_gguf.py --outtype q4_0 --outfile <gguf_output_location>\<file_name>.gguf <model_folder_location>`
 
-### MLFlow experiment tracking
-MLFlow experiment tracking is integrated into the repo.
-- Run server using `uv run mlflow server --host 127.0.0.1 --port 8080`
+## MLFlow experiment tracking
+Automatic MLFlow experiment tracking is integrated into the repo. Server will be started under adress `localhost:8080`.
 
 ## Local model serving
 
@@ -31,7 +30,7 @@ MLFlow experiment tracking is integrated into the repo.
 * Change tag <br> `docker tag psy-model:latest psyserviceregistry.azurecr.io/psy-model`
 
 ### Launch Docker container
-`docker run --runtime=nvidia --gpus=all -p 8000:8000 -p 11434:11434 psy-model`
+`docker run --runtime=nvidia --gpus=all -p 8000:8000 -p 11434:11434 psyserviceregistry.azurecr.io/psy-model`
 
 ## Azure Cloud Deployment
 ### Docker push
@@ -47,14 +46,14 @@ MLFlow experiment tracking is integrated into the repo.
     --command "kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.13.0/nvidia-device-plugin.yml"`
 1. Restart node.
 1. Label gpu pool node as `pool:gpunode`.
-1. Deploy the pod using yml from `k8s`
+1. Deploy the pod using yml `k8s/deploy.yml`
 
 ## Automatic deployment
 The repository is configured with **GitHub Actions** for automated deployment. All steps, including Docker build, push, and AKS deployment, are performed automatically upon code changes.
 
-### Requirements
+### Auto Deployment Requirements
 This repo uses local Github Actions Runner, as you need a GPU to run model fine-tuning.
 - Local system with GPU
 - Install [Github Actions Runner for local launch](https://github.com/actions/runner/releases)
 - Run `.github/workflows/start-runner.ps1` to start the local runner 
-- Push changes and your runner will perform work
+- Push changes and your runner will perform work    

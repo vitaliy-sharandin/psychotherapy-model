@@ -23,7 +23,11 @@ dependencies = [
     "torchvision==0.20.1+cu124",
     "nbconvert==7.16.6",
     "dvc==3.59.0",
-    "mlflow==2.20.1"
+    "mlflow==2.20.1",
+    "evidently==0.6.5",
+    "sentence_transformers==3.4.1",
+    "langchain-ollama==0.2.2",
+    "litellm==1.62.1"
 ]
 
 [tool.uv.sources]
